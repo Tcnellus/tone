@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tone Chaninchompoonut — Senior System Analyst</title>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1b2f45;
+    --navy-light: #243b55;
+    --gold: #c9a84c;
+    --gold-light: #e8c97d;
+    --white: #f4f6f8;
+    --muted: #8a9bb0;
+    --card-bg: #192637;
+    --border: #2c3e52;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); color: var(--white); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.6; }
+
+  /* NAV */
+  nav { position: sticky; top: 0; z-index: 100; background: rgba(13,27,42,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+  nav ul { display: flex; gap: 0; list-style: none; max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+  nav a { display: block; padding: 1rem 1.25rem; color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; transition: color 0.2s; }
+  nav a:hover { color: var(--gold); }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); padding: 5rem 2rem 4rem; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 40%, rgba(201,168,76,0.08) 0%, transparent 60%); }
+  .hero-avatar { width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-light)); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; font-weight: 700; color: var(--navy); margin: 0 auto 1.5rem; position: relative; }
+  .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; letter-spacing: -0.02em; }
+  .hero h1 span { color: var(--gold); }
+  .hero .tagline { color: var(--muted); font-size: 1.05rem; margin: 0.5rem 0 0.25rem; }
+  .hero .location { color: var(--gold); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .hero .location::before { content: '📍 '; }
+  .hero .bio { max-width: 720px; margin: 0 auto 2rem; color: #aec0d4; font-size: 0.97rem; }
+  .cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+  .btn { padding: 0.65rem 1.8rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; }
+  .btn-primary { background: var(--gold); color: var(--navy); }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-secondary { background: transparent; color: var(--gold); border: 1.5px solid var(--gold); }
+  .btn-secondary:hover { background: rgba(201,168,76,0.1); }
+  .stats { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+  .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.6rem; text-align: center; min-width: 130px; }
+  .stat-card .num { font-size: 1.8rem; font-weight: 700; color: var(--gold); line-height: 1; }
+  .stat-card .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* SECTIONS */
+  section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-title { font-size: 1.5rem; font-weight: 700; color: var(--gold); border-bottom: 2px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.6rem; }
+  .section-title::before { content: ''; display: block; width: 4px; height: 1.4rem; background: var(--gold); border-radius: 2px; }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 700px) { .about-grid { grid-template-columns: 1fr; } }
+  .about-text p { color: #aec0d4; font-size: 0.97rem; margin-bottom: 1rem; }
+  .highlight-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .highlight-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; }
+  .highlight-card .icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .highlight-card h4 { font-size: 0.9rem; color: var(--gold); margin-bottom: 0.25rem; }
+  .highlight-card p { font-size: 0.82rem; color: var(--muted); }
+
+  /* SKILLS */
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+  .skill-group { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+  .skill-group h4 { font-size: 0.85rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tag { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); color: #d4b86a; font-size: 0.76rem; padding: 0.25rem 0.65rem; border-radius: 20px; }
+  .tag.plain { background: rgba(255,255,255,0.05); border-color: var(--border); color: #8a9bb0; }
+
+  /* EXPERIENCE */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--gold), transparent); }
+  .job { position: relative; margin-bottom: 2.5rem; }
+  .job::before { content: ''; position: absolute; left: -2.38rem; top: 0.4rem; width: 12px; height: 12px; border-radius: 50%; background: var(--gold); border: 2px solid var(--navy); }
+  .job-header { margin-bottom: 1rem; }
+  .job-title { font-size: 1.1rem; font-weight: 700; color: var(--white); }
+  .job-meta { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+  .job-meta span { color: var(--gold); }
+  .job-section { margin-top: 1rem; }
+  .job-section h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gold); margin-bottom: 0.6rem; }
+  .achievement-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem; }
+  .achievement { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1rem; font-size: 0.85rem; color: #aec0d4; }
+  .achievement strong { color: var(--white); display: block; margin-bottom: 0.25rem; }
+
+  /* EDUCATION */
+  .edu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+  .edu-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+  .edu-card .degree { font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 0.3rem; }
+  .edu-card .school { font-size: 0.85rem; color: var(--gold); }
+  .edu-card .detail { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+  .badge-prog { display: inline-block; background: rgba(201,168,76,0.2); color: var(--gold); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 20px; border: 1px solid rgba(201,168,76,0.4); margin-top: 0.5rem; }
+
+  /* CERTS */
+  .certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.9rem; }
+  .cert-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; gap: 0.75rem; align-items: flex-start; }
+  .cert-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .cert-name { font-size: 0.88rem; font-weight: 600; color: var(--white); }
+  .cert-id { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* CONTACT */
+  footer { background: var(--navy-mid); border-top: 1px solid var(--border); padding: 3rem 2rem; text-align: center; }
+  footer h2 { font-size: 1.6rem; color: var(--gold); margin-bottom: 0.5rem; }
+  footer p { color: var(--muted); margin-bottom: 1.5rem; }
+  .contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .contact-link { display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.4rem; border: 1.5px solid var(--border); border-radius: 8px; color: var(--white); text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+  .contact-link:hover { border-color: var(--gold); color: var(--gold); }
+  .footer-note { color: var(--muted); font-size: 0.78rem; margin-top: 2rem; }
+
+  @media (max-width: 600px) {
+    .stats { gap: 0.75rem; }
+    .stat-card { min-width: 100px; padding: 0.9rem 1rem; }
+    .highlight-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#certifications">Certifications</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-avatar">TC</div>
+  <h1>Tone <span>Chaninchompoonut</span></h1>
+  <p class="tagline">Senior System Analyst &nbsp;·&nbsp; IBM TM1 &amp; Cognos BI Expert &nbsp;·&nbsp; Nintex Automation</p>
+  <p class="location">Anaheim, CA (US &amp; Thailand Remote) &nbsp;·&nbsp; Pacific/Eastern Hours</p>
+  <p class="hero-bio" style="max-width:720px;margin:0 auto 2rem;color:#aec0d4;font-size:0.97rem;">
+    Dual US &amp; Thai citizen with full work authorization in both countries. Operating on a 6-month US / 6-month Thailand remote rotation with a permanent California residence, working dedicated Pacific/Eastern hours to ensure 100% synchronization with the US team.
+  </p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="#contact">Get in Touch</a>
+    <a class="btn btn-secondary" href="#experience">View Experience</a>
+  </div>
+  <div class="stats">
+    <div class="stat-card"><div class="num">15+</div><div class="lbl">Years Experience</div></div>
+    <div class="stat-card"><div class="num">100</div><div class="lbl">User TM1 Env.</div></div>
+    <div class="stat-card"><div class="num">35+</div><div class="lbl">Nintex Apps</div></div>
+    <div class="stat-card"><div class="num">9+</div><div class="lbl">Certifications</div></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-title">About Me</div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>System Analyst with 15 years of IT experience, specializing in the end-to-end delivery of TM1 and Cognos BI solutions — focusing on technical migrations, workflow automation with Nintex, and optimizing complex financial models to improve performance and stability across enterprise environments.</p>
+      <p>Specialized in integrating IBM Planning Analytics (TM1), SSIS ETL, and Nintex/SharePoint workflow automation to deliver scalable and high-performance EPM solutions.</p>
+      <p>Proven track record leading full lifecycle ownership of a 100-user TM1 environment, including architecture design, multi-dimensional model development, and two-tier system administration. Deep expertise in TM1 Rules and Feeders optimization.</p>
+      <p>Strong domain knowledge in corporate Finance &amp; Accounting (F&amp;A), with hands-on experience building planning models across Labor, Capex, Sales, and P&amp;L, aligned with GAAP financial statements. Currently pursuing a Certificate in Finance at Harvard University (Expected 2027).</p>
+    </div>
+    <div class="highlight-cards">
+      <div class="highlight-card">
+        <div class="icon">📊</div>
+        <h4>Financial Modeling</h4>
+        <p>Driver-based models, What-if simulations, rolling forecasts, GAAP/IFRS alignment</p>
+      </div>
+      <div class="highlight-card">
+        <div class="icon">⚙️</div>
+        <h4>TM1 Architecture</h4>
+        <p>Rules &amp; Feeders optimization, Turbo Integrator, multi-dimensional model design</p>
+      </div>
+      <div class="highlight-card">
+        <div class="icon">🔄</div>
+        <h4>Workflow Automation</h4>
+        <p>35+ Nintex Cloud &amp; SharePoint apps across HR, Engineering, and Manufacturing</p>
+      </div>
+      <div class="highlight-card">
+        <div class="icon">🌐</div>
+        <h4>BI &amp; Reporting</h4>
+        <p>Cognos Analytics, Power BI, Tableau — serving 200+ business users</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-title">Technical Skills</div>
+  <div class="skills-grid">
+    <div class="skill-group">
+      <h4>Financial &amp; Planning Systems</h4>
+      <div class="tags">
+        <span class="tag">IBM Cognos TM1 / PA 2.0+</span>
+        <span class="tag">Turbo Integrator (TI)</span>
+        <span class="tag">Rules / Feeders</span>
+        <span class="tag">PAW / PAX</span>
+        <span class="tag plain">TM1py</span>
+        <span class="tag plain">Arc for TM1</span>
+        <span class="tag plain">Architect</span>
+        <span class="tag plain">Perspectives</span>
+        <span class="tag plain">Cafe / Contributor</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h4>Workflow &amp; Automation</h4>
+      <div class="tags">
+        <span class="tag">Nintex Automation Cloud (NAC)</span>
+        <span class="tag">Nintex for Office 365</span>
+        <span class="tag plain">Workflow Design</span>
+        <span class="tag plain">Responsive Forms</span>
+        <span class="tag plain">SharePoint Integration</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h4>Business Intelligence</h4>
+      <div class="tags">
+        <span class="tag">Cognos Analytics 11.x</span>
+        <span class="tag">Power BI</span>
+        <span class="tag plain">Tableau</span>
+        <span class="tag plain">Framework Manager</span>
+        <span class="tag plain">Report Studio</span>
+        <span class="tag plain">Cube Designer</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h4>Data Modeling &amp; Architecture</h4>
+      <div class="tags">
+        <span class="tag">MOLAP</span>
+        <span class="tag">Star &amp; Snowflake Schema</span>
+        <span class="tag plain">DMR</span>
+        <span class="tag plain">OLTP / OLAP</span>
+        <span class="tag plain">GAAP-aligned Financial Structures</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h4>Programming &amp; Scripting</h4>
+      <div class="tags">
+        <span class="tag">SQL</span>
+        <span class="tag">MDX</span>
+        <span class="tag">Python 3.11</span>
+        <span class="tag plain">C#</span>
+        <span class="tag plain">HTML / CSS / JavaScript</span>
+        <span class="tag plain">XML</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h4>Databases &amp; Microsoft Stack</h4>
+      <div class="tags">
+        <span class="tag">SQL Server (SSIS / SSAS / SSRS)</span>
+        <span class="tag plain">Oracle 11g</span>
+        <span class="tag plain">SharePoint 365 / Online / On-Prem</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h4>Infrastructure &amp; Tools</h4>
+      <div class="tags">
+        <span class="tag">Windows Server 2012–2022</span>
+        <span class="tag plain">AWS (Application Tier)</span>
+        <span class="tag plain">yEd Graph / Draw.io</span>
+        <span class="tag plain">SSL Certificate Mgmt</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h4>AI &amp; Productivity</h4>
+      <div class="tags">
+        <span class="tag">Prompt Engineering</span>
+        <span class="tag plain">ChatGPT / Gemini / Claude</span>
+        <span class="tag plain">Copilot</span>
+        <span class="tag plain">AI-Assisted Documentation</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-title">Professional Experience</div>
+  <div class="timeline">
+
+    <!-- Job 1 -->
+    <div class="job">
+      <div class="job-header">
+        <div class="job-title">Sr. System Analyst</div>
+        <div class="job-meta"><span>Ricoh Electronics, Inc.</span> &nbsp;·&nbsp; Anaheim, CA (Formerly Buford, GA) &nbsp;·&nbsp; <span>Jan 2016 – Present</span></div>
+      </div>
+
+      <div class="job-section">
+        <h4>Financial Systems &amp; TM1 Development</h4>
+        <div class="achievement-cards">
+          <div class="achievement"><strong>System Recovery &amp; MDM</strong>Stabilized a legacy 100-user TM1 environment by reverse-engineering undocumented model logic; built a custom MDM solution using Perspectives.</div>
+          <div class="achievement"><strong>IFRS 18 Implementation (2026)</strong>Leading technical modification of corporate P&amp;L structures for compliance with new IFRS 18 presentation and disclosure standards.</div>
+          <div class="achievement"><strong>Corporate Entity Divestiture</strong>Spearheaded technical separation of a unified TM1 model into two distinct business entities to support a corporate spin-off.</div>
+          <div class="achievement"><strong>Workflow Governance</strong>Redesigned the Sales-to-Price approval chain with strict locking and hand-off to secure inputs before Pricing Strategy team ownership.</div>
+          <div class="achievement"><strong>Complex Financial Modeling</strong>Developed and maintained What-if simulations and driver-based allocation models for Labor, Capex, and Sales — ensuring accurate P&amp;L and Cash Flow.</div>
+          <div class="achievement"><strong>Data Synchronization</strong>Eliminated discrepancies between the Data Warehouse (Cubic) and manual inputs, delivering a "single version of truth" for financial statements.</div>
+        </div>
+      </div>
+
+      <div class="job-section">
+        <h4>Business Process Automation (Nintex)</h4>
+        <div class="achievement-cards">
+          <div class="achievement"><strong>Legal Contract Management (2026)</strong>Designing end-to-end Legal Contract solution using Nintex AssureSign for secure document routing and e-signature compliance.</div>
+          <div class="achievement"><strong>Enterprise Workflow Design</strong>Primary developer for 35+ critical business applications using Nintex Automation Cloud (NAC) and Office 365.</div>
+          <div class="achievement"><strong>Cloud Migration</strong>Migrated high-stakes workflows (Security Incidents, Credit Memos, Special Price Requests) from Nintex O365 to NAC platform.</div>
+          <div class="achievement"><strong>Operational Support</strong>24/7 monitoring, debugging, and troubleshooting for 35+ automated forms and workflows across Manufacturing and Corporate users.</div>
+        </div>
+      </div>
+
+      <div class="job-section">
+        <h4>Infrastructure &amp; Legacy BI</h4>
+        <div class="achievement-cards">
+          <div class="achievement"><strong>System Architecture</strong>Managed 2-tier environment migration and upgrade on Windows Server; SSL certificate management and performance tuning.</div>
+          <div class="achievement"><strong>Legacy BI Maintenance</strong>Cognos BI (Framework Manager / Report Studio) maintenance for 200 users using star-schema designs and JavaScript-enhanced reporting.</div>
+          <div class="achievement"><strong>Disaster Recovery</strong>Ensure 24/7 system high availability for manufacturing operations through regular audits, debugging, and DR planning.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job 2 -->
+    <div class="job">
+      <div class="job-header">
+        <div class="job-title">Sr. Technical Consultant</div>
+        <div class="job-meta"><span>Yip Int Soi Solution Ltd.</span> &nbsp;·&nbsp; Bangkok, Thailand &nbsp;·&nbsp; <span>Apr 2011 – Aug 2015</span></div>
+      </div>
+      <div class="achievement-cards">
+        <div class="achievement"><strong>Financial Reporting</strong>Delivered complex financial reporting models — Cash Flow, P&amp;L, and Balance Sheets — ensuring data accuracy from ERP source to final output.</div>
+        <div class="achievement"><strong>TM1 Administration</strong>Primary administrator for client TM1 environments; managed security groups, approval hierarchies, and dimensional maintenance across active financial cycles.</div>
+        <div class="achievement"><strong>ETL Lead</strong>Designed end-to-end ETL workflows using SSIS to extract from Oracle 11g and SQL Server, transforming data into Star/Snowflake schemas.</div>
+        <div class="achievement"><strong>TM1 Optimization</strong>Optimized back-end calculations using Turbo Integrator and Business Rules; used MDX to manage dimensional subsets for finance users.</div>
+        <div class="achievement"><strong>Full SDLC</strong>Directed teams through complete project lifecycle — from business requirements and SOW writing through UAT, client training, and go-live.</div>
+        <div class="achievement"><strong>Multi-Platform BI</strong>Developed interactive dashboards using Cognos BI 10.2.1, Tableau, and Microsoft SSRS/SSAS; migrated legacy SSRS projects into Cognos and SharePoint 2010.</div>
+      </div>
+    </div>
+
+    <!-- Job 3 -->
+    <div class="job">
+      <div class="job-header">
+        <div class="job-title">Web Programmer (Contract)</div>
+        <div class="job-meta"><span>South Shore Products</span> &nbsp;·&nbsp; Irvine, CA &nbsp;·&nbsp; <span>Jan 2009 – Oct 2010</span></div>
+      </div>
+      <div class="achievement-cards">
+        <div class="achievement"><strong>Web Development</strong>Developed interactive Web 2.0 landing pages and internal applications using PHP 5.0, JavaScript, CSS, HTML, and MSSQL 2008R2.</div>
+        <div class="achievement"><strong>Process Automation</strong>Engineered custom business automation tools using .NET (C#) and Auto-IT for web data extraction, improving data accuracy and operational efficiency.</div>
+        <div class="achievement"><strong>Creative Design</strong>Designed visual web content and interactive elements using Adobe Creative Suite (Photoshop CS3, Dreamweaver CS4, Flash).</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="section-title">Education</div>
+  <div class="edu-grid">
+    <div class="edu-card">
+      <div class="degree">Certificate in Corporate Finance</div>
+      <div class="school">Harvard Extension School</div>
+      <div class="detail">Financial Accounting, Corporate Finance, Investment Principles</div>
+      <span class="badge-prog">In Progress — Expected 2027</span>
+    </div>
+    <div class="edu-card">
+      <div class="degree">Certificate in Computer Science</div>
+      <div class="school">Irvine Valley College &nbsp;·&nbsp; Irvine, CA</div>
+      <div class="detail">GPA: 3.38</div>
+    </div>
+    <div class="edu-card">
+      <div class="degree">Certificate in Information Systems</div>
+      <div class="school">Portland State University &nbsp;·&nbsp; Portland, OR</div>
+      <div class="detail">GPA: 3.42</div>
+    </div>
+    <div class="edu-card">
+      <div class="degree">Bachelor of Arts in Business Administration</div>
+      <div class="school">Payap University &nbsp;·&nbsp; Chiang Mai, Thailand</div>
+      <div class="detail">GPA: 3.38 &nbsp;·&nbsp; First Honors (GPA: 3.75)</div>
+    </div>
+    <div class="edu-card">
+      <div class="degree">Associate of Arts in Accounting</div>
+      <div class="school">Srithana Commercial College &nbsp;·&nbsp; Chiang Mai, Thailand</div>
+      <div class="detail">GPA: 3.68</div>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="section-title">Certifications &amp; Training</div>
+  <div class="certs-grid">
+    <div class="cert-card">
+      <div class="cert-icon">🏅</div>
+      <div>
+        <div class="cert-name">IBM Certified Developer — Cognos TM1 10.1</div>
+        <div class="cert-id">IBM000099794 &nbsp;·&nbsp; Aug 2015</div>
+      </div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">🏅</div>
+      <div>
+        <div class="cert-name">IBM Certified Administrator — Cognos TM1 10.1</div>
+        <div class="cert-id">IBM000099794 &nbsp;·&nbsp; Sep 2015</div>
+      </div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">📚</div>
+      <div>
+        <div class="cert-name">IBM Cognos BI 10.2 Boot Camp</div>
+        <div class="cert-id">IBM Thailand</div>
+      </div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">📚</div>
+      <div>
+        <div class="cert-name">IBM Cognos TM1 10.2 Boot Camp</div>
+        <div class="cert-id">IBM Thailand</div>
+      </div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">📚</div>
+      <div>
+        <div class="cert-name">IBM SPSS Modeler 14.2 Boot Camp</div>
+        <div class="cert-id">IBM Thailand</div>
+      </div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">🏅</div>
+      <div>
+        <div class="cert-name">MCSE — Business Intelligence</div>
+        <div class="cert-id">Microsoft &nbsp;·&nbsp; E201-9529</div>
+      </div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">🏅</div>
+      <div>
+        <div class="cert-name">MCSA — SQL Server 2012</div>
+        <div class="cert-id">Microsoft &nbsp;·&nbsp; E178-0115</div>
+      </div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">📚</div>
+      <div>
+        <div class="cert-name">Nintex SharePoint Development &amp; Administration</div>
+        <div class="cert-id">Nintex</div>
+      </div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">📚</div>
+      <div>
+        <div class="cert-name">Financial Engineering &amp; AI in Python</div>
+        <div class="cert-id">Udemy &nbsp;·&nbsp; Mar 2022</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<footer id="contact">
+  <h2>Let's Connect</h2>
+  <p>Open to consulting engagements, full-time roles, and collaboration opportunities.</p>
+  <div class="contact-links">
+    <a class="contact-link" href="mailto:Kriengsak.ch@hotmail.com">
+      <span>✉️</span> Kriengsak.ch@hotmail.com
+    </a>
+    <a class="contact-link" href="#" onclick="return false;">
+      <span>📍</span> Anaheim, CA &amp; Thailand (Remote)
+    </a>
+  </div>
+  <p class="footer-note">© 2026 Tone Chaninchompoonut &nbsp;·&nbsp; Built with HTML/CSS &nbsp;·&nbsp; Host on GitHub Pages, Netlify, or Vercel</p>
+</footer>
+
+</body>
+</html>
