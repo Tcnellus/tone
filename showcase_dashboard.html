@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Model — Financial Statements Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 2.5rem 3rem 1.5rem;
+    border-bottom: 1px solid #1e2535;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 600; color: #f0f4ff; }
+  header p  { font-size: 0.85rem; color: #64748b; margin-top: 0.3rem; }
+
+  .controls {
+    display: flex;
+    gap: 2rem;
+    padding: 1.25rem 3rem;
+    background: #0d1120;
+    border-bottom: 1px solid #1e2535;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .control-group label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .version-toggles { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+  .version-btn {
+    padding: 0.3rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #2a3348;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .version-btn.active { color: #fff; border-color: transparent; }
+  .version-btn[data-version="Actual"].active        { background: #2563eb; }
+  .version-btn[data-version="Forecast"].active      { background: #7c3aed; }
+  .version-btn[data-version="CurrentBP"].active     { background: #059669; }
+  .version-btn[data-version="2Q 2025 V1"].active    { background: #d97706; }
+  .version-btn[data-version="2Q 2025 V2"].active    { background: #dc2626; }
+
+  select {
+    background: #1a2035;
+    border: 1px solid #2a3348;
+    color: #e2e8f0;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem 3rem;
+  }
+
+  .card {
+    background: #141824;
+    border: 1px solid #1e2535;
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+  .card h3 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #64748b;
+    margin-bottom: 1rem;
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem 3rem;
+  }
+  .kpi {
+    background: #141824;
+    border: 1px solid #1e2535;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
+  .kpi .label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+  .kpi .value { font-size: 1.5rem; font-weight: 600; color: #f0f4ff; margin-top: 0.25rem; }
+  .kpi .sub   { font-size: 0.75rem; color: #64748b; margin-top: 0.15rem; }
+
+  canvas { max-height: 220px; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .tag-ifrs { background: #1e3a5f; color: #60a5fa; }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.75rem;
+    color: #334155;
+    border-top: 1px solid #1e2535;
+    margin-top: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Budget Planning Model <span class="tag tag-ifrs">IFRS 18</span></h1>
+  <p>TM1 / Planning Analytics &nbsp;·&nbsp; 5-Version Planning &nbsp;·&nbsp; Indirect Cash Flow &nbsp;·&nbsp; FY Apr 2025 – Mar 2026</p>
+</header>
+
+<div class="controls">
+  <div class="control-group">
+    <label>Versions</label>
+    <div class="version-toggles">
+      <button class="version-btn active" data-version="Actual">Actual</button>
+      <button class="version-btn active" data-version="Forecast">Forecast</button>
+      <button class="version-btn active" data-version="CurrentBP">CurrentBP</button>
+      <button class="version-btn" data-version="2Q 2025 V1">2Q V1</button>
+      <button class="version-btn" data-version="2Q 2025 V2">2Q V2</button>
+    </div>
+  </div>
+  <div class="control-group">
+    <label>KPI Month</label>
+    <select id="kpiMonth">
+      <option>Apr-2025</option><option>May-2025</option><option>Jun-2025</option>
+      <option>Jul-2025</option><option>Aug-2025</option><option selected>Sep-2025</option>
+      <option>Oct-2025</option><option>Nov-2025</option><option>Dec-2025</option>
+      <option>Jan-2026</option><option>Feb-2026</option><option>Mar-2026</option>
+    </select>
+  </div>
+</div>
+
+<!-- KPI strip -->
+<div class="kpi-row" id="kpiRow">
+  <div class="kpi"><div class="label">Net Income (Actual YTD)</div><div class="value" id="kpi-ni">—</div><div class="sub">vs Forecast: <span id="kpi-ni-var">—</span></div></div>
+  <div class="kpi"><div class="label">Operating Profit (Actual YTD)</div><div class="value" id="kpi-op">—</div><div class="sub">IFRS 18 primary metric</div></div>
+  <div class="kpi"><div class="label">Operating Cash Flow (Actual YTD)</div><div class="value" id="kpi-ocf">—</div><div class="sub">Indirect method</div></div>
+</div>
+
+<!-- Charts -->
+<div class="grid">
+
+  <div class="card" style="grid-column: span 2;">
+    <h3>Total Revenue — Monthly Trend by Version</h3>
+    <canvas id="chartRevenue"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Net Income — Version Comparison</h3>
+    <canvas id="chartNetIncome"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Gross Profit &amp; Operating Profit — Actual vs Forecast</h3>
+    <canvas id="chartProfit"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Operating Cash Flow — Actual vs Forecast</h3>
+    <canvas id="chartCF"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Balance Sheet — Total Assets (Actual)</h3>
+    <canvas id="chartBS"></canvas>
+  </div>
+
+</div>
+
+<footer>
+  Built by Tone Kriengsak &nbsp;·&nbsp;
+  TM1 Budget Model Demo &nbsp;·&nbsp;
+  <a href="https://github.com/tcneus" style="color:#475569;">GitHub</a>
+</footer>
+
+<script>
+// =============================================================
+// DATA — replace placeholder values with real TM1 export
+// Format: DATA[version][metric][month_index 0-11]
+// Months: Apr-2025(0) May(1) Jun(2) Jul(3) Aug(4) Sep(5)
+//         Oct(6) Nov(7) Dec(8) Jan-2026(9) Feb(10) Mar(11)
+// =============================================================
+
+const MONTHS = ['Apr-25','May-25','Jun-25','Jul-25','Aug-25','Sep-25',
+                'Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26'];
+
+// ------ PASTE YOUR TM1 EXPORT HERE ------
+const DATA = {
+  'Actual': {
+    'Total Revenue':        [4200,4350,4100,4500,4280,4420, 0, 0, 0, 0, 0, 0],
+    'Gross Profit':         [1680,1740,1640,1800,1712,1768, 0, 0, 0, 0, 0, 0],
+    'Operating Profit':     [1050,1088,1025,1125,1070,1105, 0, 0, 0, 0, 0, 0],
+    'Net Income':           [ 840, 870, 820, 900, 856, 884, 0, 0, 0, 0, 0, 0],
+    'Operating Cash Flow':  [ 780, 810, 760, 850, 800, 820, 0, 0, 0, 0, 0, 0],
+    'Total Assets':         [18000,18300,18150,18600,18400,18700,0,0,0,0,0,0],
+  },
+  'Forecast': {
+    'Total Revenue':        [4100,4250,4000,4400,4200,4350,4500,4600,4400,4200,4350,4500],
+    'Gross Profit':         [1640,1700,1600,1760,1680,1740,1800,1840,1760,1680,1740,1800],
+    'Operating Profit':     [1025,1063,1000,1100,1050,1088,1125,1150,1100,1050,1088,1125],
+    'Net Income':           [ 820, 850, 800, 880, 840, 870, 900, 920, 880, 840, 870, 900],
+    'Operating Cash Flow':  [ 760, 790, 740, 830, 780, 810, 850, 870, 830, 780, 810, 850],
+    'Total Assets':         [17800,18100,17950,18400,18200,18500,18700,18900,18600,18300,18500,18800],
+  },
+  'CurrentBP': {
+    'Total Revenue':        [4000,4150,3900,4300,4100,4250,4400,4500,4300,4100,4250,4400],
+    'Gross Profit':         [1600,1660,1560,1720,1640,1700,1760,1800,1720,1640,1700,1760],
+    'Operating Profit':     [1000,1038, 975,1075,1025,1063,1100,1125,1075,1025,1063,1100],
+    'Net Income':           [ 800, 830, 780, 860, 820, 850, 880, 900, 860, 820, 850, 880],
+    'Operating Cash Flow':  [ 740, 770, 720, 810, 760, 790, 830, 850, 810, 760, 790, 830],
+    'Total Assets':         [17500,17800,17650,18100,17900,18200,18400,18600,18300,18000,18200,18500],
+  },
+  '2Q 2025 V1': {
+    'Total Revenue':        [4050,4200,3950,4350,4150,4300,4450,4550,4350,4150,4300,4450],
+    'Gross Profit':         [1620,1680,1580,1740,1660,1720,1780,1820,1740,1660,1720,1780],
+    'Operating Profit':     [1013,1050, 988,1088,1038,1075,1113,1138,1088,1038,1075,1113],
+    'Net Income':           [ 810, 840, 790, 870, 830, 860, 890, 910, 870, 830, 860, 890],
+    'Operating Cash Flow':  [ 750, 780, 730, 820, 770, 800, 840, 860, 820, 770, 800, 840],
+    'Total Assets':         [17650,17950,17800,18250,18050,18350,18550,18750,18450,18150,18350,18650],
+  },
+  '2Q 2025 V2': {
+    'Total Revenue':        [4080,4230,3980,4380,4180,4330,4480,4580,4380,4180,4330,4480],
+    'Gross Profit':         [1632,1692,1592,1752,1672,1732,1792,1832,1752,1672,1732,1792],
+    'Operating Profit':     [1020,1058, 995,1095,1045,1083,1120,1145,1095,1045,1083,1120],
+    'Net Income':           [ 816, 846, 796, 876, 836, 866, 896, 916, 876, 836, 866, 896],
+    'Operating Cash Flow':  [ 756, 786, 736, 826, 776, 806, 846, 866, 826, 776, 806, 846],
+    'Total Assets':         [17720,18020,17870,18320,18120,18420,18620,18820,18520,18220,18420,18720],
+  },
+};
+// -----------------------------------------
+
+const VERSION_COLORS = {
+  'Actual':      '#3b82f6',
+  'Forecast':    '#a855f7',
+  'CurrentBP':   '#10b981',
+  '2Q 2025 V1':  '#f59e0b',
+  '2Q 2025 V2':  '#ef4444',
+};
+
+let activeVersions = new Set(['Actual','Forecast','CurrentBP']);
+
+// ---- utilities ----
+function fmt(n) {
+  if (n === 0 || n == null) return '—';
+  return (n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0));
+}
+function fmtFull(n) {
+  return n == null ? '—' : '$' + n.toLocaleString();
+}
+function ytd(version, metric, upToIdx) {
+  return DATA[version][metric].slice(0, upToIdx+1).reduce((a,b)=>a+b, 0);
+}
+
+// ---- KPI strip ----
+function updateKPIs() {
+  const idx = MONTHS.indexOf(document.getElementById('kpiMonth').value.replace('-20','-').replace('-20','-'));
+  const mi = document.getElementById('kpiMonth').selectedIndex;
+  const ni   = ytd('Actual','Net Income', mi);
+  const niFc = ytd('Forecast','Net Income', mi);
+  const op   = ytd('Actual','Operating Profit', mi);
+  const ocf  = ytd('Actual','Operating Cash Flow', mi);
+  const varPct = niFc ? (((ni-niFc)/niFc)*100).toFixed(1) : '—';
+  document.getElementById('kpi-ni').textContent  = '$'+ni.toLocaleString();
+  document.getElementById('kpi-ni-var').textContent = (varPct > 0 ? '+' : '') + varPct + '%';
+  document.getElementById('kpi-ni-var').style.color = varPct >= 0 ? '#10b981' : '#ef4444';
+  document.getElementById('kpi-op').textContent  = '$'+op.toLocaleString();
+  document.getElementById('kpi-ocf').textContent = '$'+ocf.toLocaleString();
+}
+
+// ---- Charts ----
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: { legend: { labels: { color: '#94a3b8', boxWidth: 10, font: { size: 11 } } } },
+  scales: {
+    x: { ticks: { color: '#475569', font: { size: 10 } }, grid: { color: '#1e2535' } },
+    y: { ticks: { color: '#475569', font: { size: 10 } }, grid: { color: '#1e2535' } },
+  }
+};
+
+function makeDatasets(metric, versions) {
+  return versions.map(v => ({
+    label: v,
+    data: DATA[v][metric],
+    borderColor: VERSION_COLORS[v],
+    backgroundColor: VERSION_COLORS[v] + '22',
+    borderWidth: 2,
+    pointRadius: 2,
+    tension: 0.3,
+    fill: false,
+  }));
+}
+
+let charts = {};
+
+function buildCharts() {
+  const versions = [...activeVersions];
+
+  if (charts.revenue) charts.revenue.destroy();
+  charts.revenue = new Chart(document.getElementById('chartRevenue'), {
+    type: 'line',
+    data: { labels: MONTHS, datasets: makeDatasets('Total Revenue', versions) },
+    options: { ...chartDefaults }
+  });
+
+  if (charts.ni) charts.ni.destroy();
+  charts.ni = new Chart(document.getElementById('chartNetIncome'), {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: versions.map(v => ({
+        label: v,
+        data: DATA[v]['Net Income'],
+        backgroundColor: VERSION_COLORS[v] + 'cc',
+        borderRadius: 3,
+      }))
+    },
+    options: { ...chartDefaults }
+  });
+
+  const profitVersions = versions.filter(v => v === 'Actual' || v === 'Forecast');
+  if (charts.profit) charts.profit.destroy();
+  charts.profit = new Chart(document.getElementById('chartProfit'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        ...profitVersions.map(v => ({
+          label: 'Gross Profit ('+v+')',
+          data: DATA[v]['Gross Profit'],
+          borderColor: VERSION_COLORS[v],
+          borderDash: [],
+          borderWidth: 2, pointRadius: 2, tension: 0.3, fill: false,
+        })),
+        ...profitVersions.map(v => ({
+          label: 'Op. Profit ('+v+')',
+          data: DATA[v]['Operating Profit'],
+          borderColor: VERSION_COLORS[v],
+          borderDash: [5,3],
+          borderWidth: 1.5, pointRadius: 2, tension: 0.3, fill: false,
+        })),
+      ]
+    },
+    options: { ...chartDefaults }
+  });
+
+  const cfVersions = versions.filter(v => v === 'Actual' || v === 'Forecast');
+  if (charts.cf) charts.cf.destroy();
+  charts.cf = new Chart(document.getElementById('chartCF'), {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: cfVersions.map(v => ({
+        label: v,
+        data: DATA[v]['Operating Cash Flow'],
+        backgroundColor: VERSION_COLORS[v] + 'cc',
+        borderRadius: 3,
+      }))
+    },
+    options: { ...chartDefaults }
+  });
+
+  if (charts.bs) charts.bs.destroy();
+  charts.bs = new Chart(document.getElementById('chartBS'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [{
+        label: 'Total Assets (Actual)',
+        data: DATA['Actual']['Total Assets'],
+        borderColor: VERSION_COLORS['Actual'],
+        backgroundColor: VERSION_COLORS['Actual'] + '22',
+        borderWidth: 2, pointRadius: 2, tension: 0.3, fill: true,
+      }]
+    },
+    options: { ...chartDefaults }
+  });
+}
+
+// ---- Event wiring ----
+document.querySelectorAll('.version-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.version;
+    if (activeVersions.has(v)) {
+      if (activeVersions.size === 1) return;
+      activeVersions.delete(v);
+      btn.classList.remove('active');
+    } else {
+      activeVersions.add(v);
+      btn.classList.add('active');
+    }
+    buildCharts();
+    updateKPIs();
+  });
+});
+
+document.getElementById('kpiMonth').addEventListener('change', updateKPIs);
+
+// ---- Init ----
+buildCharts();
+updateKPIs();
+</script>
+</body>
+</html>
